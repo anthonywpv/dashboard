@@ -11,11 +11,6 @@ export default function SelectorUI() {
         setCityInput(event.target.value);
     };
 
-    const capitalize = (s: string) => {
-        if (!s) return '';
-        const lowerS = s.toLowerCase();
-        return lowerS.charAt(0).toUpperCase() + lowerS.slice(1);
-    }
     return (
         <FormControl fullWidth>
             <InputLabel id="city-select-label">Ciudad</InputLabel>
