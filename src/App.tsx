@@ -5,6 +5,8 @@ import AlertUI from './components/AlertUI';
 import SelectorUI from './components/SelectorUI';
 import IndicatorUI from './components/IndicatorUI';
 import useFetchData from './functions/useFetchData';
+import TableUI from './components/TableUI';
+import ChartUI from './components/ChartUI';
 
 function App() {
 
@@ -82,11 +84,13 @@ function App() {
 
       {/* Gráfico */}
       <Grid sx={{ display: { xs: "none", md: "block" } }}>
+        <ChartUI />
         Elemento: Gráfico
       </Grid>
 
       {/* Tabla */}
       <Grid sx={{ display: { xs: "none", md: "block" } }}>
+        <TableUI />
         Elemento: Tabla
       </Grid>
 
