@@ -1,40 +1,56 @@
 :root {
+  --color-primary: #1fbded;      
+  --color-secondary: #54cad1;    
+  --color-accent-light: #a4dbde; 
+  --color-highlight: #c8f3f3;   
   
-  /* Fondo principal de la página */
-  --bg-gradient-start: #c8f3f3; 
-  --bg-gradient-end: #4ec9d2;   
+  --text-dark: #3a3842;          
+  --text-muted: #6b7280;
 
-  /* Tarjetas y Contenedores */
-  --card-bg: #ffffff;           
-  --card-shadow: rgba(0, 0, 0, 0.1);
-  --card-border: #bcccdc;       
-
-  /* Texto */
-  --text-primary: #102a43;      
-  --text-secondary: #486581;    
-
-  /* Acentos (Botones, Iconos, Títulos destacados) */
-  --accent-primary: #334e68;    /* Color principal botones */
-  --accent-hover: #243b53;      /* Color al pasar el mouse */
-  --accent-light: #829ab1;      /* Color para estados de carga/deshabilitado */
+  --bg-base: #f5f1ff;          
+  --bg-pattern-1: #c8f3f3;      
+  --bg-pattern-2: #ede9f8;      
   
-  /* Asistente IA (Chat) */
-  --chat-bg: #f0f4f8;           /* Fondo de la respuesta del bot */
-  --chat-border: #d9e2ec;       
-  
+  --bg-card: #ffffff;
 
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-  color: var(--text-primary);
-  background: var(--bg-gradient-start);
+  color: var(--text-dark);
 }
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
   min-width: 320px;
   min-height: 100vh;
-  background: linear-gradient(180deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+  
+  background-color: var(--bg-base);
+
+  background-image: 
+    radial-gradient(circle at 15% 50%, var(--bg-pattern-1) 0%, transparent 25%), 
+    radial-gradient(circle at 85% 30%, var(--bg-pattern-2) 0%, transparent 25%);
+    
+  background: 
+    radial-gradient(at 0% 0%, hsla(253,16%,95%,1) 0, transparent 50%), 
+    radial-gradient(at 50% 0%, hsla(225,39%,90%,1) 0, transparent 50%), 
+    radial-gradient(at 100% 0%, hsla(192,50%,85%,1) 0, transparent 50%);
+    
+  background-size: 100% 100%;
+  background-attachment: fixed; 
+}
+
+.myContainer {
+  background: var(--bg-card);
+  border-radius: 1.5rem;
+  box-shadow: 0 4px 20px -5px rgba(31, 189, 237, 0.15); 
+  padding: 1.5rem;
+  border: 1px solid var(--color-highlight); 
+  height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+h2, h3, h4 {
+  color: var(--text-dark);
+  font-weight: 700;
+  margin-top: 0;
 }
