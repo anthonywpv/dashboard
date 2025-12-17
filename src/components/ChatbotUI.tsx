@@ -1,16 +1,25 @@
 import { useState, useRef, useEffect } from 'react';
-
+import { CohereClientV2 } from 'cohere-ai';
+import { 
+  Box, TextField, Paper, Typography, CircularProgress, IconButton, Fab, Fade, Avatar 
+} from '@mui/material';
+import SendIcon from '@mui/icons-material/Send';
+import ChatIcon from '@mui/icons-material/Chat';
+import CloseIcon from '@mui/icons-material/Close';
+import SmartToyIcon from '@mui/icons-material/SmartToy';
 
 interface OpenMeteoResponse {
   latitude?: number;
   longitude?: number;
-  current_weather?: {
-    temperature: number;
-    windspeed: number;
-    weathercode: number;
-    time?: string;
+  current?: {
+    temperature_2m: number;
+    relative_humidity_2m: number;
+    apparent_temperature: number;
+    is_day: number;
+    weather_code: number;
+    wind_speed_10m: number;
   };
-  [key: string]: any; 
+  daily?: any; 
 }
 
 interface ChatbotProps {
@@ -18,189 +27,139 @@ interface ChatbotProps {
 }
 
 interface Message {
-  role: 'user' | 'bot';
+  role: 'user' | 'assistant' | 'system';
   content: string;
 }
 
-
 const ChatbotUI = ({ data }: ChatbotProps) => {
+  const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  
+  const [requestTimestamps, setRequestTimestamps] = useState<number[]>([]);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Variables de Entorno
-  const API_KEY = import.meta.env.VITE_COHERE_API_KEY;
-  const MAX_PROMPTS = Number(import.meta.env.VITE_MAX_PROMPTS_PER_MINUTE) || 5;
+  // Variable de entorno
+  const API_KEY = import.meta.env.VITE_COHERE_API_KEY; 
+  const cohere = new CohereClientV2({ token: API_KEY });
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+    if (isOpen) messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, isOpen]);
 
-  const checkRateLimit = (): boolean => {
-    const now = Date.now();
-    const timeWindow = 60000; 
-    
-    const historyString = localStorage.getItem('chat_limit_history');
-    let timestamps: number[] = historyString ? JSON.parse(historyString) : [];
-
-    timestamps = timestamps.filter(time => (now - time) < timeWindow);
-
-    if (timestamps.length >= MAX_PROMPTS) {
-      const secondsLeft = Math.ceil((timeWindow - (now - timestamps[0])) / 1000);
-      setErrorMsg(`⚠️ Límite alcanzado. Espera ${secondsLeft} segundos.`);
-      return false; 
-    }
-
-    timestamps.push(now);
-    localStorage.setItem('chat_limit_history', JSON.stringify(timestamps));
-    return true;
-  };
+  const toggleChat = () => setIsOpen(!isOpen);
 
   const handleSend = async () => {
     if (!input.trim()) return;
 
+    const now = Date.now();
+    const recentRequests = requestTimestamps.filter(t => now - t < 60000);
+    if (recentRequests.length >= 10) {
+      setErrorMsg("Demasiadas preguntas. Espera un minuto.");
+      setRequestTimestamps(recentRequests);
+      return;
+    }
+    setRequestTimestamps([...recentRequests, now]);
+
     setErrorMsg(null);
-    if (!checkRateLimit()) return;
+    setIsLoading(true);
 
     const userMessage: Message = { role: 'user', content: input };
     setMessages(prev => [...prev, userMessage]);
     setInput('');
-    setIsLoading(true);
 
-    let systemPrompt = `Eres el asistente virtual de la agencia de viajes "OserTravel". Eres amable, profesional y experto en turismo en Ecuador.`;
+
+    let weatherContext = "Cargando datos...";
     
-    if (data && data.current_weather) {
-      systemPrompt += `
-      \n[DATOS EN TIEMPO REAL]
-      El usuario está consultando desde una ubicación con este clima:
-      - Temperatura: ${data.current_weather.temperature}°C
-      - Viento: ${data.current_weather.windspeed} km/h
-      - Código de clima: ${data.current_weather.weathercode}
-      Usa estos datos si el usuario pregunta por recomendaciones de ropa o actividades ahora mismo.`;
+    if (data && data.current) {
+      weatherContext = `[DATOS EN TIEMPO REAL]:
+      - Temperatura: ${data.current.temperature_2m}°C
+      - Sensación Térmica: ${data.current.apparent_temperature}°C
+      - Humedad: ${data.current.relative_humidity_2m}%
+      - Viento: ${data.current.wind_speed_10m} km/h
+      - Es de día: ${data.current.is_day ? 'Sí' : 'No'}
+      - Código clima: ${data.current.weather_code}
+      
+      Usa estos datos para responder. Si preguntan "¿hace calor?", mira la temperatura.`;
     }
 
+    const systemMessage: Message = {
+      role: 'system',
+      content: `Eres un experto meteorólogo, un asistente climático llamado ClimaBot. ${weatherContext} Responde de forma breve dando un pequeño resumen del clima antes que nada. Tienes que ser amigable y usar emojies siempre para complementar tus respuestas. Preguntale su nombre solo si aun no te lo ha dicho.`
+    };
+
     try {
-      const response = await fetch('https://api.cohere.ai/v1/chat', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${API_KEY}`,
-          'Content-Type': 'application/json',
-          'X-Client-Name': 'OserTravel-Bot'
-        },
-        body: JSON.stringify({
-          message: input, 
-          preamble: systemPrompt,
-          model: 'command-r-plus', 
-          temperature: 0.3,
-          chat_history: messages.map(m => ({ 
-            role: m.role === 'user' ? 'USER' : 'CHATBOT', 
-            message: m.content 
-          }))
-        })
+      const response = await cohere.chat({
+        model: 'command-r-plus-08-2024',
+        messages: [
+          systemMessage, 
+          ...messages.map(m => ({ role: m.role, content: m.content })),
+          userMessage
+        ],
       });
 
-      if (!response.ok) {
-        if (response.status === 401) throw new Error("API Key inválida.");
-        if (response.status === 429) throw new Error("Cuota de API excedida.");
-        throw new Error(`Error del servidor (${response.status})`);
+      if (response && response.message && response.message.content) {
+        const textContent = response.message.content.find((c) => c.type === "text");
+        const botText = (textContent as any)?.text || "Error leyendo respuesta.";
+        
+        setMessages(prev => [...prev, { role: 'assistant', content: botText }]);
       }
 
-      const resData = await response.json();
-      
-      const botMessage: Message = { role: 'bot', content: resData.text };
-      setMessages(prev => [...prev, botMessage]);
-
-    } catch (error: any) {
+    } catch (error) {
       console.error(error);
-      setErrorMsg(error.message || "Error al conectar con el asistente.");
+      setErrorMsg("Error de conexión con la IA.");
     } finally {
       setIsLoading(false);
     }
   };
 
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
   return (
-    <div className="flex flex-col h-[500px] w-full max-w-md mx-auto border border-gray-200 rounded-xl shadow-2xl bg-white overflow-hidden font-sans">
-      
-      {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-500 p-4 text-white shadow-md z-10">
-        <h3 className="font-bold text-lg flex items-center gap-2">
-          ✈️ OserTravel IA
-        </h3>
-        <p className="text-blue-100 text-xs mt-1">Tu asistente de viajes personal</p>
-      </div>
+    <Box sx={{ position: 'fixed', bottom: 20, right: 20, zIndex: 9999, display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+      <Fade in={isOpen}>
+        <Paper elevation={6} sx={{ width: 320, height: 450, mb: 2, borderRadius: 4, display: isOpen ? 'flex' : 'none', flexDirection: 'column', overflow: 'hidden' }}>
+          {/* Header */}
+          <Box sx={{ bgcolor: '#1976d2', p: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'white' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Avatar sx={{ bgcolor: 'white', color: '#1976d2', width: 30, height: 30 }}><SmartToyIcon fontSize="small" /></Avatar>
+              <Typography variant="subtitle1" fontWeight="bold">Asistente Clima</Typography>
+            </Box>
+            <IconButton size="small" onClick={toggleChat} sx={{ color: 'white' }}><CloseIcon /></IconButton>
+          </Box>
 
-      {/* Chat Area */}
-      <div className="flex-1 p-4 overflow-y-auto bg-gray-50 space-y-4">
-        {messages.length === 0 && (
-          <div className="text-center mt-10 opacity-60">
-            <p className="text-4xl mb-2">👋</p>
-            <p className="text-sm text-gray-500">¡Hola! Pregúntame sobre destinos, clima o paquetes turísticos.</p>
-          </div>
-        )}
-        
-        {messages.map((msg, index) => (
-          <div
-            key={index}
-            className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-          >
-            <div
-              className={`max-w-[85%] p-3 rounded-2xl text-sm shadow-sm ${
-                msg.role === 'user'
-                  ? 'bg-blue-600 text-white rounded-br-none'
-                  : 'bg-white text-gray-800 border border-gray-200 rounded-bl-none'
-              }`}
-            >
-              {msg.content}
-            </div>
-          </div>
-        ))}
-        
-        {isLoading && (
-          <div className="flex justify-start">
-            <div className="bg-gray-200 text-gray-500 text-xs px-3 py-2 rounded-full animate-pulse">
-              Escribiendo...
-            </div>
-          </div>
-        )}
-        
-        <div ref={messagesEndRef} />
-      </div>
+          {/* Mensajes */}
+          <Box sx={{ flexGrow: 1, overflowY: 'auto', p: 2, bgcolor: '#f5f5f5' }}>
+            {messages.length === 0 && <Typography variant="caption" color="text.secondary" align="center" display="block" sx={{ mt: 2 }}>Pregúntame sobre el clima actual.</Typography>}
+            {messages.map((msg, index) => (
+              <Box key={index} sx={{ display: 'flex', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start', mb: 1.5 }}>
+                <Paper sx={{ p: 1.5, maxWidth: '85%', bgcolor: msg.role === 'user' ? '#1976d2' : 'white', color: msg.role === 'user' ? 'white' : 'text.primary', borderRadius: 2 }}>
+                  <Typography variant="body2">{msg.content}</Typography>
+                </Paper>
+              </Box>
+            ))}
+            {isLoading && <CircularProgress size={15} sx={{ display: 'block', mx: 'auto', mt: 1 }} />}
+            {errorMsg && <Typography color="error" variant="caption" display="block" align="center">{errorMsg}</Typography>}
+            <div ref={messagesEndRef} />
+          </Box>
 
-      {/* Error Message Area */}
-      {errorMsg && (
-        <div className="bg-red-50 text-red-600 text-xs p-2 text-center border-t border-red-100">
-          {errorMsg}
-        </div>
-      )}
-
-      {/* Input Area */}
-      <div className="p-3 bg-white border-t border-gray-100">
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && !isLoading && handleSend()}
-            placeholder="Escribe tu mensaje..."
-            disabled={isLoading}
-            className="flex-1 border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100"
-          />
-          <button
-            onClick={handleSend}
-            disabled={isLoading || !input.trim()}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg text-sm font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
-          >
-            Enviar
-          </button>
-        </div>
-        <div className="text-center mt-1">
-            <span className="text-[10px] text-gray-400">Potenciado por Cohere AI</span>
-        </div>
-      </div>
-    </div>
+          {/* Input */}
+          <Box sx={{ p: 2, bgcolor: 'white', display: 'flex', gap: 1 }}>
+            <TextField fullWidth size="small" placeholder="Escribe..." value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={handleKeyPress} disabled={isLoading} />
+            <IconButton color="primary" onClick={handleSend} disabled={!input.trim() || isLoading}><SendIcon /></IconButton>
+          </Box>
+        </Paper>
+      </Fade>
+      <Fab color="primary" onClick={toggleChat} sx={{ width: 60, height: 60 }}>{isOpen ? <CloseIcon /> : <ChatIcon />}</Fab>
+    </Box>
   );
 };
 

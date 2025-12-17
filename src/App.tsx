@@ -8,7 +8,7 @@ import useFetchData from './functions/useFetchData';
 import TableUI from './components/TableUI';
 import { TemperatureChart, WindChart } from './components/ChartUI';
 import { useState } from 'react';
-//import ChatbotUI from './components/ChatbotUI';
+import ChatbotUI from './components/ChatbotUI';
 
 function App() {
 
@@ -78,7 +78,10 @@ function App() {
         <TableUI data={data} loading={loading} error={error} />
       </Grid>
 
+      <ChatbotUI data={data} />
+
     </Grid>
+
     
   );
 }
