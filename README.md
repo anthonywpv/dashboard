@@ -1,73 +1,61 @@
-# React + TypeScript + Vite
+# 🌦 WeatherAI Dashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+![React](https://img.shields.io/badge/React-18.2-blue?logo=react)
+![Vite](https://img.shields.io/badge/Vite-5.0-646CFF?logo=vite)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-38B2AC?logo=tailwind-css)
+![OpenMeteo](https://img.shields.io/badge/Data-OpenMeteo-orange)
+![Cohere](https://img.shields.io/badge/AI-Cohere-purple)
 
-Currently, two official plugins are available:
+> *Un panel meteorológico del clima en Ecuador.* Visualiza condiciones climáticas en tiempo real y conversa con un asistente de IA que analiza los datos meteorológicos por ti.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+## 📸 Vista Previa
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+![App Screenshot](https://via.placeholder.com/800x450?text=Weather+Dashboard+Preview)
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 📖 Descripción
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+Este proyecto es un Dashboard Meteorológico interactivo desarrollado con tecnologías web modernas. A diferencia de las apps de clima tradicionales, esta aplicación integra *Inteligencia Artificial Generativa*.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+El sistema no solo muestra la temperatura o el viento, sino que incluye un asistente virtual capaz de interpretar esos datos y responder preguntas contextuales como "¿Es buen momento para salir a correr?" o "¿Qué ropa me recomiendas usar hoy?" basándose en las métricas en tiempo real.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+---
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## ✨ Características Principales
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### 🌍 Datos en Tiempo Real
+* *Integración con OpenMeteo:* Obtención precisa de temperatura, velocidad del viento, códigos climáticos y geolocalización sin necesidad de API Keys para los datos del clima.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+### 🤖 Asistente Meteorológico (AI Powered)
+* *Chatbot Contextual:* El bot "sabe" el clima actual antes de que tú se lo digas.
+* *Motor Cohere:* Utiliza modelos LLM avanzados para generar consejos útiles y naturales.
+* *Rate Limiting:* Sistema de protección integrado para limitar el uso de la API de IA.
+
+### ⚡ UI/UX Moderna
+* *Diseño Responsivo:* Adaptado perfectamente a móviles y escritorio.
+* *Tailwind CSS:* Estilos limpios y minimalistas.
+* *Rendimiento:* Construido sobre Vite para una experiencia de usuario instantánea.
+
+---
+
+## 🛠 Stack Tecnológico
+
+| Herramienta | Función |
+| :--- | :--- |
+| *React + TypeScript* | Biblioteca de interfaz y lógica tipada. |
+| *Vite* | Entorno de desarrollo y empaquetado (Build Tool). |
+| *Tailwind CSS* | Framework de estilos "Utility-First". |
+| *OpenMeteo API* | Fuente de datos meteorológicos (Gratuita/Open Source). |
+| *Cohere API* | Procesamiento de Lenguaje Natural (Chatbot). |
+
+---
+
+## 🚀 Instalación y Despliegue
+
+### 1. Clonar el repositorio
+```bash
+git clone [https://github.com/anthonywpv/dashboard.git](https://github.com/anthonywpv/dashboard.git)
+cd dashboard

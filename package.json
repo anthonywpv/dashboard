@@ -18,6 +18,8 @@
     "@mui/material": "^7.3.6",
     "@mui/x-charts": "^8.21.0",
     "@mui/x-data-grid": "^8.21.0",
+    "bash": "^0.0.1",
+    "cohere-ai": "^7.20.0",
     "install": "^0.13.0",
     "lucide-react": "^0.561.0",
     "npm": "^11.6.4",

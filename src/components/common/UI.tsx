@@ -11,16 +11,15 @@ export function Title({ children, style, className }: CommonProps) {
     <h2
       className={className}
       style={{
-        color: 'var(--text-dark)',      
-        fontSize: '1.25rem',            
+        color: 'var(--text-dark)',
+        fontSize: '1.25rem',
         fontWeight: '700',
         textAlign: 'left',
         marginBottom: '1.25rem',
-        
         borderLeft: '5px solid var(--color-primary)', 
-        paddingLeft: '12px',            
-        lineHeight: '1.2',             
-        ...style
+        paddingLeft: '12px',
+        lineHeight: '1.2',
+        ...style 
       }}
     >
       {children}
@@ -28,8 +27,9 @@ export function Title({ children, style, className }: CommonProps) {
   );
 }
 
+
 interface ContainerProps extends CommonProps {
-  container?: boolean; 
+  container?: boolean;
 }
 
 export function Container({ children, style, className, container = true }: ContainerProps) {
@@ -43,8 +43,9 @@ export function Container({ children, style, className, container = true }: Cont
         boxSizing: 'border-box',
         display: 'flex',
         flexDirection: 'column',
-        position: 'relative', 
-        overflow: 'hidden',  
+        position: 'relative',
+        overflow: 'hidden',
+        ...style 
       }}
     >
       {children}
