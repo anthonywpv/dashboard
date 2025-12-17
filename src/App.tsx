@@ -95,13 +95,13 @@ function App() {
 
         {/* Gráfico */}
         <Grid sx={{ display: { xs: "none", md: "block" } }}>
-          <ChartUI />
+          <ChartUI data={data} loading={loading} error={error}/>
           Elemento: Gráfico
         </Grid>
 
         {/* Tabla */}
         <Grid sx={{ display: { xs: "none", md: "block" } }}>
-          <TableUI />
+          <TableUI data={data} loading={loading} error={error}/>
           Elemento: Tabla
         </Grid>
 

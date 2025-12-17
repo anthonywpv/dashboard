@@ -1,6 +1,6 @@
 import Box from '@mui/material/Box';
 import { DataGrid, type GridColDef } from '@mui/x-data-grid';
-import useFetchData from '../functions/useFetchData';
+import { type OpenMeteoResponse } from '../types/DashboardTypes';
 
 function combineArrays(arrLabels: Array<string>, arrValues1: Array<number>, arrValues2: Array<number>) {
     return arrLabels.map((label, index) => ({
@@ -39,11 +39,14 @@ const columns: GridColDef[] = [
     },
 ];
 
+interface TableUIProps {
+    data: OpenMeteoResponse | null;
+    loading: boolean;
+    error: string | null;
+}
 
-export default function TableUI() {
-
-    const { data, loading, error } = useFetchData();
-
+export default function TableUI({ data, loading, error }: TableUIProps) {
+    
     if (loading) return <p>Cargando datos...</p>;
     if (error) return <p>Error: {error}</p>;
     if (!data) return <p>No hay datos</p>;

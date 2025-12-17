@@ -1,17 +1,20 @@
 import { LineChart } from '@mui/x-charts/LineChart';
 import Typography from '@mui/material/Typography';
-import useFetchData from '../functions/useFetchData';
+import { type OpenMeteoResponse } from '../types/DashboardTypes';
+
+interface ChartUIProps {
+    data: OpenMeteoResponse | null;
+    loading: boolean;
+    error: string | null;
+}
 
 
-export default function ChartUI() {
+export default function ChartUI({ data, loading, error }: ChartUIProps) {
 
-    const { data, loading, error } = useFetchData();
-
-    if (loading) return <p>Cargando datos...</p>;
+    if (loading) return <p>Cargando gráfico...</p>;
     if (error) return <p>Error: {error}</p>;
-    if (!data) return <p>No hay datos</p>;
+    if (!data) return <p>No hay datos para graficar</p>;
 
-    
     const arrLabels = data.hourly.time;
     const arrValues1 = data.hourly.temperature_2m;
     const arrValues2 = data.hourly.wind_speed_10m;
