@@ -8,15 +8,19 @@ interface FetchResult {
   error: string | null;
 }
 
-export default function useFetchData(): FetchResult {
+export default function useFetchData(latitude: number, longitude: number): FetchResult {
   const URL = 
-  'https://api.open-meteo.com/v1/forecast?latitude=-1.8603&longitude=-79.9768&hourly=temperature_2m,wind_speed_10m&current=temperature_2m,relative_humidity_2m,wind_speed_10m,apparent_temperature&timezone=auto'
+  `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&hourly=temperature_2m,wind_speed_10m&current=temperature_2m,relative_humidity_2m,wind_speed_10m,apparent_temperature&timezone=auto`
   const [data, setData] = useState<OpenMeteoResponse | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if(latitude === undefined || longitude === undefined) return;
     const fetchData = async () => {
+      setLoading(true);
+      setError(null);
+
       try {
         const response = await fetch(URL);
         if (!response.ok) {
@@ -33,7 +37,7 @@ export default function useFetchData(): FetchResult {
     };
 
     fetchData();
-  }, []);
+  }, [latitude, longitude]);
 
   return { data, loading, error };
 }
