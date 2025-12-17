@@ -13,12 +13,11 @@ function App() {
 
   const [selectedCity, setSelectedCity] = useState<CityConfig>({
     name: "Guayaquil",
-    latitude: -2.1962,
-    longitude: -79.8862
+    lat: -2.1962,
+    lon: -79.8862
   });
 
-  const { data, loading, error } = useFetchData(selectedCity.latitude, selectedCity.longitude);
-
+  const { data, loading, error } = useFetchData(selectedCity.lat, selectedCity.lon);
   const handleCityChange = (city: CityConfig) => {
     setSelectedCity(city);
   };
