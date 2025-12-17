@@ -10,12 +10,6 @@
 
 ---
 
-## 📸 Vista Previa
-
-![App Screenshot](https://via.placeholder.com/800x450?text=Weather+Dashboard+Preview)
-
----
-
 ## 📖 Descripción
 
 Este proyecto es un Dashboard Meteorológico interactivo desarrollado con tecnologías web modernas. A diferencia de las apps de clima tradicionales, esta aplicación integra *Inteligencia Artificial Generativa*.
