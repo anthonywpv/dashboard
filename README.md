@@ -7,7 +7,7 @@
 ![OpenWeather](https://img.shields.io/badge/Data-OpenWeather-orange)
 ![Cohere](https://img.shields.io/badge/AI-Cohere-purple)
 
-> *Un panel meteorológico del clima en Ecuador.* Visualiza condiciones climáticas en tiempo real y conversa con un asistente de IA que analiza los datos meteorológicos por ti.
+> *Un panel meteorológico del clima Globalmente.* Visualiza condiciones climáticas en tiempo real y conversa con un asistente de IA que analiza los datos meteorológicos por ti.
 
 ---
 
