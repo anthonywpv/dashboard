@@ -10,14 +10,15 @@ interface ChartProps {
 
 const processData = (data: OpenMeteoResponse | null) => {
     if (!data) return [];
-    const now = new Date();
-    const currentHour = now.getHours();
-    const startIndex = data.hourly.time.findIndex(t => new Date(t).getHours() === currentHour);
+
+    const currentIsoDateHour = data.current.time.slice(0, 13); 
+    
+    const startIndex = data.hourly.time.findIndex(t => t.startsWith(currentIsoDateHour));
     const safeStartIndex = startIndex === -1 ? 0 : startIndex;
     const endIndex = safeStartIndex + 24;
 
     return data.hourly.time.slice(safeStartIndex, endIndex).map((time, idx) => ({
-        time: new Date(time).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
+        time: time.slice(11, 16), 
         temperature: data.hourly.temperature_2m[safeStartIndex + idx],
         apparent: data.hourly.apparent_temperature[safeStartIndex + idx],
         windSpeed: data.hourly.wind_speed_10m[safeStartIndex + idx],
