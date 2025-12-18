@@ -3,7 +3,8 @@
 ![React](https://img.shields.io/badge/React-18.2-blue?logo=react)
 ![Vite](https://img.shields.io/badge/Vite-5.0-646CFF?logo=vite)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-38B2AC?logo=tailwind-css)
-![OpenMeteo](https://img.shields.io/badge/Data-OpenMeteo-orange)
+![OpenMeteo](https://img.shields.io/badge/Data-OpenMeteo-blue)
+![OpenWeather](https://img.shields.io/badge/Data-OpenWeather-orange)
 ![Cohere](https://img.shields.io/badge/AI-Cohere-purple)
 
 > *Un panel meteorológico del clima en Ecuador.* Visualiza condiciones climáticas en tiempo real y conversa con un asistente de IA que analiza los datos meteorológicos por ti.
