@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { MapPin } from 'lucide-react';
 import TextField from '@mui/material/TextField';
 import Paper from '@mui/material/Paper';
@@ -24,12 +24,12 @@ interface SelectorUIProps {
 }
 
 export default function SelectorUI({ onCityChange }: SelectorUIProps) {
-    const [cityInput, setCityInput] = useState<string>('');
+    const [cityInput, setCityInput] = useState<string>(DEFAULT_CITY.name);
+    
     const [search, setSearch] = useState<string>('');
     const [isFocused, setIsFocused] = useState<boolean>(false);
     
-    // Fetcher hook
-    const { locations, loading } = LocationFetcher(search);
+    const { locations, loading, error } = LocationFetcher(search);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setCityInput(e.target.value);
@@ -40,6 +40,11 @@ export default function SelectorUI({ onCityChange }: SelectorUIProps) {
         setCityInput(city.name); 
         setSearch(''); 
         setIsFocused(false);
+    };
+
+    const handleFocus = (event: React.FocusEvent<HTMLInputElement>) => {
+        setIsFocused(true);
+        event.target.select();
     };
 
     useEffect(() => {
@@ -57,7 +62,7 @@ export default function SelectorUI({ onCityChange }: SelectorUIProps) {
                 fullWidth
                 value={cityInput}
                 onChange={handleChange}
-                onFocus={() => setIsFocused(true)}
+                onFocus={handleFocus} 
                 onBlur={() => setTimeout(() => setIsFocused(false), 200)}
                 autoComplete="off"
                 sx={{
@@ -99,6 +104,12 @@ export default function SelectorUI({ onCityChange }: SelectorUIProps) {
                     }
                 }}
             />
+
+            {error && (
+                <div style={{ color: 'red', fontSize: '0.8rem', marginTop: '5px', paddingLeft: '10px' }}>
+                    Error: {error}
+                </div>
+            )}
 
             {locations && locations.length > 0 && isFocused && (
                 <Paper
