@@ -44,6 +44,7 @@ El sistema no solo muestra la temperatura o el viento, sino que incluye un asist
 | *Vite* | Entorno de desarrollo y empaquetado (Build Tool). |
 | *Tailwind CSS* | Framework de estilos "Utility-First". |
 | *OpenMeteo API* | Fuente de datos meteorológicos (Gratuita/Open Source). |
+| *OpenWeather API* | Fuente de datos geográficos (Gratuita/Open Source). |
 | *Cohere API* | Procesamiento de Lenguaje Natural (Chatbot). |
 
 ---
