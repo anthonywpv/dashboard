@@ -2,27 +2,30 @@ import './App.css'
 import { Grid } from '@mui/material'
 import HeaderUI from './components/HeaderUI';
 import AlertUI from './components/AlertUI';
-import SelectorUI, { type CityConfig } from './components/SelectorUI';
+import SelectorUI from './components/SelectorUI';
 import IndicatorUI from './components/IndicatorUI';
 import useFetchData from './functions/useFetchData';
 import TableUI from './components/TableUI';
 import { TemperatureChart, WindChart } from './components/ChartUI';
 import { useState } from 'react';
 import ChatbotUI from './components/ChatbotUI';
+import type { CityLocation } from './types/DashboardTypes'; 
 
 function App() {
 
-  const [selectedCity, setSelectedCity] = useState<CityConfig>({
+  const [selectedCity, setSelectedCity] = useState<CityLocation>({
     name: "Guayaquil",
     lat: -2.1962,
-    lon: -79.8862
+    lon: -79.8862,
+    country: "EC"
   });
 
   const { data, loading, error } = useFetchData(selectedCity.lat, selectedCity.lon);
-  const handleCityChange = (city: CityConfig) => {
+  const handleCityChange = (city: CityLocation) => {
     setSelectedCity(city);
   };
 
+  
   return (
     <Grid container spacing={4} sx={{ padding: '2rem', maxWidth: '1600px', margin: '0 auto' }}>
 

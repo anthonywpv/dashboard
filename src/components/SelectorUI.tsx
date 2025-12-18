@@ -1,111 +1,153 @@
-import MenuItem from '@mui/material/MenuItem';
-import Select, { type SelectChangeEvent } from '@mui/material/Select';
-import { useState } from 'react';
-import { MapPin } from 'lucide-react'; // Usamos iconos modernos
+import { useState, useEffect } from 'react';
+import { MapPin } from 'lucide-react';
+import TextField from '@mui/material/TextField';
+import Paper from '@mui/material/Paper';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemText from '@mui/material/ListItemText';
+import CircularProgress from '@mui/material/CircularProgress';
+import InputAdornment from '@mui/material/InputAdornment';
 
-export interface CityConfig {
-    name: string;
-    lat: number;
-    lon: number;
-}
+import type { CityLocation } from '../types/DashboardTypes';
+import LocationFetcher from '../functions/LocationFetcher';
 
-const CITIES: Record<string, CityConfig> = {
-    guayaquil: { name: "Guayaquil", lat: -2.1962, lon: -79.8862 },
-    quito: { name: "Quito", lat: -0.1807, lon: -78.4678 },
-    manta: { name: "Manta", lat: -0.9621, lon: -80.7127 },
-    cuenca: { name: "Cuenca", lat: -2.9001, lon: -79.0059 },
+const DEFAULT_CITY: CityLocation = {
+    name: "Guayaquil",
+    lat: -2.1962,
+    lon: -79.8862,
+    country: "EC"
 };
 
 interface SelectorUIProps {
-    onCityChange: (city: CityConfig) => void;
+    onCityChange: (city: CityLocation) => void;
 }
 
 export default function SelectorUI({ onCityChange }: SelectorUIProps) {
-    const [selectedKey, setSelectedKey] = useState('guayaquil');
+    const [cityInput, setCityInput] = useState<string>(DEFAULT_CITY.name);
+    
+    const [search, setSearch] = useState<string>('');
+    const [isFocused, setIsFocused] = useState<boolean>(false);
+    
+    const { locations, loading, error } = LocationFetcher(search);
 
-    const handleChange = (event: SelectChangeEvent<string>) => {
-        const cityKey = event.target.value;
-        setSelectedKey(cityKey);
-
-        const cityConfig = CITIES[cityKey];
-        if (cityConfig) {
-            onCityChange(cityConfig);
-        }
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setCityInput(e.target.value);
     };
+
+    const handleSelect = (city: CityLocation) => {
+        onCityChange(city);
+        setCityInput(city.name); 
+        setSearch(''); 
+        setIsFocused(false);
+    };
+
+    const handleFocus = (event: React.FocusEvent<HTMLInputElement>) => {
+        setIsFocused(true);
+        event.target.select();
+    };
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (cityInput.trim() !== '') setSearch(cityInput);
+        }, 800);
+        return () => clearTimeout(timer);
+    }, [cityInput]);
 
     return (
         <div style={{ position: 'relative', width: '100%' }}>
-            <div style={{ 
-                position: 'absolute', 
-                left: '20px', 
-                top: '50%', 
-                transform: 'translateY(-50%)', 
-                zIndex: 10,
-                color: 'var(--color-primary)',
-                pointerEvents: 'none' 
-            }}>
-                <MapPin size={24} />
-            </div>
-
-            <Select
-                value={selectedKey}
+            <TextField
+                variant="outlined"
+                placeholder="Buscar ciudad..."
+                fullWidth
+                value={cityInput}
                 onChange={handleChange}
-                displayEmpty
+                onFocus={handleFocus} 
+                onBlur={() => setTimeout(() => setIsFocused(false), 200)}
+                autoComplete="off"
                 sx={{
-                    width: '100%',
-                    borderRadius: '16px', 
-                    backgroundColor: 'var(--bg-card)',
-                    color: 'var(--text-dark)',
-                    fontWeight: 'bold',
-                    fontSize: '1.1rem',
-                    paddingLeft: '35px', 
-                    boxShadow: '0 8px 20px -5px rgba(31, 189, 237, 0.25)', 
-                    border: '2px solid transparent',
-                    transition: 'all 0.3s ease',
-                    
-                    '& .MuiOutlinedInput-notchedOutline': { border: 'none' },
-                    
-                    '&:hover': {
-                        backgroundColor: '#ffffff',
-                        boxShadow: '0 10px 25px -5px rgba(31, 189, 237, 0.4)',
-                        transform: 'translateY(-2px)'
-                    },
-                    
-                    '&.Mui-focused': {
-                        border: '2px solid var(--color-primary)',
-                        boxShadow: '0 0 0 4px var(--color-highlight)', 
-                    }
-                }}
-                MenuProps={{
-                    PaperProps: {
-                        sx: {
-                            borderRadius: '16px',
-                            marginTop: '8px',
-                            boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
-                            '& .MuiMenuItem-root': {
-                                padding: '12px 20px',
-                                fontSize: '1rem',
-                                color: 'var(--text-muted)',
-                                '&:hover': {
-                                    backgroundColor: 'var(--bg-body-start)',
-                                    color: 'var(--color-primary)',
-                                },
-                                '&.Mui-selected': {
-                                    backgroundColor: 'var(--color-highlight)',
-                                    color: 'var(--text-dark)',
-                                    fontWeight: 'bold',
-                                }
-                            }
+                    '& .MuiOutlinedInput-root': {
+                        borderRadius: '16px',
+                        backgroundColor: 'var(--bg-card)', 
+                        color: 'var(--text-dark)',
+                        fontWeight: 'bold',
+                        fontSize: '1.1rem',
+                        boxShadow: '0 8px 20px -5px rgba(31, 189, 237, 0.25)', 
+                        transition: 'all 0.3s ease',
+                        paddingLeft: '10px', 
+
+                        '& fieldset': { border: 'none' }, 
+                        
+                        '&:hover': {
+                            backgroundColor: '#ffffff',
+                            boxShadow: '0 10px 25px -5px rgba(31, 189, 237, 0.4)',
+                            transform: 'translateY(-2px)'
+                        },
+                        '&.Mui-focused': {
+                            border: '2px solid var(--color-primary)', 
+                            boxShadow: '0 0 0 4px var(--color-highlight)', 
                         }
                     }
                 }}
-            >
-                {Object.keys(CITIES).map((key) => (
-                    <MenuItem key={key} value={key}>
-                        {CITIES[key].name}
-                    </MenuItem>
-                ))}
-            </Select>
+                slotProps={{
+                    input: {
+                        startAdornment: (
+                            <InputAdornment position="start" sx={{ color: 'var(--color-primary)', marginRight: '10px' }}>
+                                <MapPin size={24} />
+                            </InputAdornment>
+                        ),
+                        endAdornment: (
+                            <InputAdornment position="end">
+                                {loading && <CircularProgress size={20} />}
+                            </InputAdornment>
+                        )
+                    }
+                }}
+            />
+
+            {error && (
+                <div style={{ color: 'red', fontSize: '0.8rem', marginTop: '5px', paddingLeft: '10px' }}>
+                    Error: {error}
+                </div>
+            )}
+
+            {locations && locations.length > 0 && isFocused && (
+                <Paper
+                    sx={{
+                        position: 'absolute',
+                        top: '110%',
+                        left: 0,
+                        right: 0,
+                        zIndex: 10,
+                        borderRadius: '16px', 
+                        boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
+                        overflow: 'hidden',
+                        backgroundColor: '#ffffff'
+                    }}
+                >
+                    <List dense>
+                        {locations.map((loc, idx) => (
+                            <ListItem key={idx} disablePadding>
+                                <ListItemButton 
+                                    onClick={() => handleSelect(loc)}
+                                    sx={{
+                                        '&:hover': {
+                                            backgroundColor: 'var(--bg-body-start)',
+                                            color: 'var(--color-primary)',
+                                        }
+                                    }}
+                                >
+                                    <ListItemText
+                                        primary={loc.name}
+                                        secondary={`${loc.country}${loc.state ? `, ${loc.state}` : ''}`}
+                                        primaryTypographyProps={{ fontWeight: 'bold', color: 'var(--text-dark)' }}
+                                    />
+                                </ListItemButton>
+                            </ListItem>
+                        ))}
+                    </List>
+                </Paper>
+            )}
         </div>
     );
 }

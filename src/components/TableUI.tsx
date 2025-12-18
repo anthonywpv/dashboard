@@ -2,32 +2,15 @@ import Typography from '@mui/material/Typography';
 import { Title, Container } from './common/UI';
 import { type OpenMeteoResponse } from '../types/DashboardTypes';
 
-
 function getWeatherIcon(code: number): string {
-    // Despejado total
-    if (code === 0) return '☀️';
-    
-    // Mayormente despejado
-    if (code === 1) return '🌤️';
-    
-    // Parcialmente nublado
-    if (code === 2) return '⛅';
-    
-    // Nublado total
-    if (code === 3) return '☁️';
-    
-    // Niebla
-    if ([45, 48].includes(code)) return '🌫️';
-    
-    // Llovizna y Lluvia
-    if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82)) return '🌧️';
-    
-    // Nieve 
-    if ((code >= 71 && code <= 77)) return '❄️';
-    
-    // Tormenta
+    if (code === 0) return '☀️'; 
+    if (code === 1) return '🌤️'; 
+    if (code === 2) return '⛅'; 
+    if (code === 3) return '☁️'; 
+    if ([45, 48].includes(code)) return '🌫️'; 
+    if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82)) return '🌧️'; 
+    if ((code >= 71 && code <= 77)) return '❄️'; 
     if (code >= 95) return '⛈️';
-    
     return '🌡️';
 }
 
@@ -42,25 +25,20 @@ export default function TableUI({ data, loading, error }: TableUIProps) {
   if (error) return <Typography color="error">{error}</Typography>;
   if (!data) return null;
 
- 
-  const now = new Date();
-  const currentHour = now.getHours();
+  const currentIsoDateHour = data.current.time.slice(0, 13);
   
- 
-  const startIdx = data.hourly.time.findIndex(t => new Date(t).getHours() === currentHour);
+  const startIdx = data.hourly.time.findIndex(t => t.startsWith(currentIsoDateHour));
   const safeStartIdx = startIdx === -1 ? 0 : startIdx;
-
 
   const range = data.hourly.time.slice(safeStartIdx, safeStartIdx + 24);
   
+  const hours = range.map(t => t.slice(11, 16));
   
-  const hours = range.map(t => new Date(t).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }));
   const weatherIcons = range.map((_, i) => getWeatherIcon(data.hourly.weather_code[safeStartIdx + i]));
   const temps = range.map((_, i) => Math.round(data.hourly.temperature_2m[safeStartIdx + i]));
   const humidity = range.map((_, i) => data.hourly.relative_humidity_2m[safeStartIdx + i]);
   const wind = range.map((_, i) => data.hourly.wind_speed_10m[safeStartIdx + i]);
 
- 
   const cellStyle = {
     padding: '12px 16px',
     whiteSpace: 'nowrap' as const,
@@ -86,11 +64,9 @@ export default function TableUI({ data, loading, error }: TableUIProps) {
     <Container>
       <Title>Pronóstico Detallado (24h)</Title>
       
-      {/* Contenedor con Scroll Horizontal */}
       <div style={{ overflowX: 'auto', width: '100%', paddingBottom: '10px' }}>
         <table style={{ borderCollapse: 'separate', borderSpacing: 0, width: 'max-content' }}>
           <tbody>
-            
             {/* Fila 1: Hora */}
             <tr>
               <td style={headerCellStyle}>Hora</td>
@@ -117,7 +93,7 @@ export default function TableUI({ data, loading, error }: TableUIProps) {
               {temps.map((t, i) => (
                 <td key={i} style={cellStyle}>
                   <span style={{ 
-                      backgroundColor: 'var(--color-highlight)', // Tu cyan pálido #c8f3f3
+                      backgroundColor: 'var(--color-highlight)', 
                       color: 'var(--text-dark)', 
                       padding: '4px 12px', 
                       borderRadius: '20px', 
@@ -148,7 +124,6 @@ export default function TableUI({ data, loading, error }: TableUIProps) {
                 </td>
               ))}
             </tr>
-
           </tbody>
         </table>
       </div>

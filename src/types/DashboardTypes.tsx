@@ -62,3 +62,12 @@ export interface Daily {
   precipitation_probability_max: number[]
   wind_gusts_10m_max: number[] 
 }
+
+export interface CityLocation {
+  name: string;
+  local_names?: Record<string, string>;
+  lat: number;
+  lon: number;
+  country: string;
+  state?: string;
+}
